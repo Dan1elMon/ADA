@@ -23,7 +23,7 @@ int main() {
     stringstream ss;
 
     scanf("%d", &test);
-    getchar(); // Lee el salto de línea después del número de test
+    getchar();
 
     while(test--) {
         getline(cin, s);
