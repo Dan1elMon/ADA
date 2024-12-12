@@ -25,7 +25,6 @@ bool canPartitionMemo(const vector<int>& nums, int index, int target) {
     bool include = canPartitionMemo(nums, index - 1, target - nums[index]);
     bool exclude = canPartitionMemo(nums, index - 1, target);
 
-    // Almacenar y devolver el resultado
     memo[key] = include || exclude;
     return memo[key];
 }
