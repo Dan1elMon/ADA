@@ -9,10 +9,10 @@
 #include <ctime>
 using namespace std;
 
-// Definición de las matrices globales
-int nT, mM, P[900][70];   // P es la matriz de tiempos de procesamiento
-int EF[900][70], LS[900][70];  // Matrices de tiempos de finalización tempranos y tardíos
-mt19937 Rand(time(0));  // Generador de números aleatorios
+// definicion de las matrices globales
+int nT, mM, P[900][70];  
+int EF[900][70], LS[900][70];  // Matrices de tiempos de finalizacion tempranos y tardios
+mt19937 Rand(time(0));  // Generador de numeros aleatorios
 
 inline int elapsed(bool reset = false) {
     static clock_t start = clock();
@@ -22,7 +22,7 @@ inline int elapsed(bool reset = false) {
     return static_cast<int>(1000.00 * double(clock() - start) / double(CLOCKS_PER_SEC));
 }
 
-// Función para cargar datos desde un archivo
+// Funcion para cargar datos desde un archivo
 void cargar(string nombre) {
     ifstream archivo(nombre);
     if (!archivo.is_open()) {
@@ -56,7 +56,7 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
     // Inicializa la matriz EF
     fill(&EF[0][0], &EF[0][0] + 900 * 70, 0);
 
-    // Calcular tiempos de finalización tempranos
+    // calcular tiempos de finalizacion tempranos
     for (int k = 1; k <= S.size(); k++) {
         int j = S[k - 1];
         EF[k][0] = EF[k - 1][0] + P[j][0];
@@ -65,7 +65,7 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
         }
     }
 
-    // Calcula los tiempos de finalización tempranos relativos para el nuevo trabajo `nj`
+    // calcula los tiempos de finalizacion tempranos relativos para el nuevo trabajo nj
     for (int k = 0; k <= S.size(); k++) {
         EF[k][0] += P[nj][0];
         for (int i = 1; i < mM; i++) {
@@ -73,7 +73,7 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
         }
     }
 
-    // Calcula los tiempos de inicio tardíos (LS)
+    // Calcula los tiempos de inicio tardios LS
     fill(&LS[S.size()][0], &LS[S.size()][0] + 70, 0);
     for (int k = S.size() - 1; k >= 0; k--) {
         int j = S[k];
@@ -83,7 +83,7 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
         }
     }
 
-    // Busca la mejor posición de inserción para minimizar el makespan
+    // Busca la mejor posicion para minimizar el makespan
     int bmk = numeric_limits<int>::max(), mk, pos;
     for (int k = 0; k <= S.size(); k++) {
         mk = 0;
@@ -101,19 +101,19 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
 
 int BusquedaLocal(vector<int>& S, int pmk = 0) {
     vector<int> orden(S);
-    shuffle(orden.begin(), orden.end(), Rand);  // Baraja aleatoriamente
-    int bmk = pmk == 0 ? makespan(S) : pmk;  // Calcula el makespan inicial si no se pasa `pmk`
+    shuffle(orden.begin(), orden.end(), Rand);
+    int bmk = pmk == 0 ? makespan(S) : pmk;  // Calcula el makespan inicial si no se pasa pmk
 
-    int c = 0;  // Contador de iteraciones sin mejora
-    int k = 0;  // Índice para el orden
+    int c = 0; 
+    int k = 0;  
 
     do {
         int mk;
         vector<int>::iterator pos;
         
         S.erase(find(S.begin(), S.end(), orden[k]));  // Elimina el trabajo
-        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]);  // Encuentra la mejor posición
-        S.insert(pos, orden[k]);  // Inserta el trabajo en la mejor posición
+        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]);  // Encuentra la mejor posicion
+        S.insert(pos, orden[k]);  // Inserta el trabajo en la mejor posicion
 
         if (mk < bmk) {
             bmk = mk;
@@ -126,14 +126,14 @@ int BusquedaLocal(vector<int>& S, int pmk = 0) {
         }
 
         c++;
-    } while (c < nT);  // Termina si no mejora en `nT` iteraciones
+    } while (c < nT);  // Termina si no mejora en nT iteraciones
 
-    return bmk;  // Devuelve el mejor makespan encontrado
+    return bmk; 
 }
 
 
 
-// Genera una permutación de trabajos según la prioridad NEH
+// Genera una permutacion de trabajos segun la prioridad NEH
 void PrioridadNEH(vector<int> &Orden) {
     vector<int> TT(nT, 0);
     for (int j = 0; j < nT; j++) {
@@ -150,7 +150,7 @@ void PrioridadNEH(vector<int> &Orden) {
 
 
 
-// Función NEH 
+// Funcion NEH 
 int NEH(vector<int> &S) {
     int mk;
     vector<int> orden;
@@ -158,31 +158,29 @@ int NEH(vector<int> &S) {
     S = {orden[0]};
     for (int k = 1; k < nT; k++) {
         vector<int>::iterator pos;
-        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]); // Necesitas implementar esta función
+        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]); 
         S.insert(pos, orden[k]);
     }
     return mk;
 }
 
 //asd
-// Criterio de aceptación de ILS (Iterated Local Search - Mejorado)
+// Criterio de aceptacion de ILS _better
 int ILS_B(vector<int>& BS) {
     vector<int> S;
     int mk, bmk;
 
-    // Inicializa el tiempo transcurrido a 0
     elapsed(true);
 
-    // Ejecuta el algoritmo NEH para obtener una solución inicial
     NEH(S);
     
-    // Calcula el makespan de la solución inicial usando BusquedaLocal
+    // Calcula el makespan de la solucion inicial usando BusquedaLocal
     bmk = mk = BusquedaLocal(S);
-    BS = S;  // Guarda la mejor solución hasta ahora
+    BS = S;  // Guarda la mejor solucion hasta ahora
 
-    // Loop de búsqueda iterativa hasta que el tiempo transcurrido alcance el límite
+    // bucle busqueda iterativa hasta que el tiempo transcurrido alcance el limite
     while (elapsed() < 15 * nT * mM) {
-        // Realiza dos intercambios aleatorios en la solución S
+        // Realiza dos intercambios aleatorios en la solucion S
         auto b1 = S.begin() + Rand() % S.size();
         auto b2 = S.begin() + Rand() % S.size();
         swap(*b1, *b2);  // Primer intercambio
@@ -191,13 +189,13 @@ int ILS_B(vector<int>& BS) {
         b2 = S.begin() + Rand() % S.size();
         swap(*b1, *b2);  // Segundo intercambio
 
-        // Evalúa si la nueva solución es mejor
+        //si la nueva solucion es mejor
         mk = BusquedaLocal(S);
         if (bmk > mk) {
-            BS = S;  // Actualiza la mejor solución
+            BS = S;  // Actualiza 
             bmk = mk;
         } else {
-            S = BS;  // Restaura la mejor solución encontrada
+            S = BS;  // Restaura la mejor solucion encontrada
             mk = bmk;
         }
     }
@@ -206,7 +204,7 @@ int ILS_B(vector<int>& BS) {
     return bmk;
 }
 //asd
-// Criterio de aceptación de ILS rANDON WALK
+// Criterio de aceptacion de ILS rANDON WALK
 int ILS_RW(vector<int>& BS) {
     vector<int> S;
     int mk, bmk;
@@ -214,31 +212,31 @@ int ILS_RW(vector<int>& BS) {
     // Inicializa el tiempo transcurrido a 0
     elapsed(true);
 
-    // Ejecuta el algoritmo NEH para obtener una solución inicial
+    // Ejecuta  NEH para obtener una solucion inicial
     NEH(S);
     
-    // Calcula el makespan de la solución inicial usando BusquedaLocal
+    // Calcula el makespan 
     bmk = mk = BusquedaLocal(S);
-    BS = S;  // Guarda la mejor solución hasta ahora
+    BS = S;  // Guarda la mejor solucion hasta ahora
 
-    // Loop de búsqueda iterativa hasta que el tiempo transcurrido alcance el límite
+    // bucle de busqueda iterativa hasta que el tiempo transcurrido alcance el limite
     while (elapsed() < 15 * nT * mM) {
-        // Realiza dos intercambios aleatorios en la solución S
+        // Realiza dos intercambios aleatorios en la solucion S
         auto b1 = S.begin() + Rand() % S.size();
         auto b2 = S.begin() + Rand() % S.size();
-        swap(*b1, *b2);  // Primer intercambio
+        swap(*b1, *b2);  //  intercambio
 
         b1 = S.begin() + Rand() % S.size();
         b2 = S.begin() + Rand() % S.size();
         swap(*b1, *b2);  // Segundo intercambio
 
-        // Evalúa si la nueva solución es mejor
+        // Evalua si la nueva solucion es mejor
         mk = BusquedaLocal(S);
         if (bmk > mk) {
-            BS = S;  // Actualiza la mejor solución
+            BS = S;
             bmk = mk;
         } /*else {
-            S = BS;  // Restaura la mejor solución encontrada
+            S = BS;  //diferencia 
             mk = bmk;
         }*/
     }
@@ -299,7 +297,7 @@ int ILS_SA(vector<int>& BS){
             sum_p+=P[j][i];
         }
     }
-    double T=double (sum_p)/(nT*mM*25);  // Ajusté la temperatura
+    double T=double (sum_p)/(nT*mM*25);
     elapsed(true);
     bmk=mk=NEH(S);
     bmk=mk=BusquedaLocal(S);
@@ -323,7 +321,7 @@ int ILS_SA(vector<int>& BS){
                 BS=S;bmk=mk;
             }
         }
-        else if(double(Rand())/Rand.max()<=exp(-(double(nmk-mk )/T))){ // Corrección del cálculo de probabilidad
+        else if(double(Rand())/Rand.max()<=exp(-(double(nmk-mk )/T))){
             S=NS;mk=nmk;
         }
     }
@@ -375,14 +373,14 @@ void Experimento (string sMetodo, tMetodo pMetodo) {
     fout << sMetodo << endl;
 
     vector<string> Instancias = {
-        "ta051", "ta052", "ta053", "ta054", "ta055", "ta056", "ta057", "ta058", "ta059", "ta060"
+        "ta051", /*"ta052", "ta053", "ta054", "ta055", "ta056", "ta057", "ta058", "ta059", "ta060"*/
     };
 
     for (const auto &instancia : Instancias) {
         cargar("flowshop/" + instancia);
 
         fout << instancia;
-        /*for (int i = 0; i < SS.size(); i++) {  // Aquí corregí la condición de la iteración*/
+        /*for (int i = 0; i < SS.size(); i++) {  */
             fout << ", " << (*pMetodo)(SS);
         //}
        /* fout << endl;*/
@@ -398,16 +396,15 @@ int main(){
     Experimento ("00_ilsb_prueba",ILS_B);
 
     cout << "Iterated Local search randwom walk" << endl;
-    //Experimento ("00_ilsrw_prueba ",ILS_RW);
+    Experimento ("01_ilsrw_prueba ",ILS_RW);
 
-    //cout << "Iterated Local search Simulated annealing" << endl;
-    //Experimento ("00_ilssa_prueba",ILS_SA);
+    cout << "Iterated Local search Simulated annealing" << endl;
+    Experimento ("02_ilssa_prueba",ILS_SA);
 
-    //cout << "Iterated greedy con ls" << endl;
-    //xperimento ("00_ig_prueba",IG_conLS);
+    cout << "Iterated greedy con ls" << endl;
+    Experimento ("03_ig_prueba",IG_conLS);
 
-
-    //cout << "Iterated greedy sin ls" << endl;
-    //Experimento ("00_igsin_prueba",IG_noLs);
+    cout << "Iterated greedy sin ls" << endl;
+    Experimento ("04_igsin_prueba",IG_noLs);
 
 }
