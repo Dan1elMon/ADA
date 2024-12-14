@@ -147,7 +147,7 @@ int main() {
     vector<string> Instancias = {"br66", "ta021", "ta022", "ta023", "ta024", "ta025", "ta026", "ta027", "ta028", "ta029", "ta030"};
     cout << "Soluciones producidas por NEH" << endl;
     for (auto& instancia : Instancias) {
-        cargar("flowshp/" + instancia);
+        cargar("flowshop/" + instancia);
         cout << instancia << "\t" << NEH(ss) << ": ";
         for (auto& j : ss) cout << j << ", ";
         cout << endl;

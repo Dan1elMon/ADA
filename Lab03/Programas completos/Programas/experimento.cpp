@@ -150,4 +150,10 @@ int main() {
     Experimento("ilsb", ILS_B);
     Experimento("ilssa", ILS_SA);
     return 0;
+    //Experimento ("ilsb",ILS_B);better
+    //Experimento ("ilsrw",ILS_RW);randomwalk
+    //Experimento ("ilssa",ILS_SA);simmulated annealing
+    //Experimento ("ig",IG);iterated greedy
+    //Experimento ("igsin",IGsin); iterated greedy sin busqueda local
+    
 }

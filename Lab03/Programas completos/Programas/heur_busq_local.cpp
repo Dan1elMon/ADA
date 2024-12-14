@@ -123,7 +123,7 @@ int BusquedaLocal(vector<int>& S, int pmk = 0) {
 
 int main() {
     vector<int> ss;
-    vector<string> Instancias = {"br66", "ta021", "ta022", "ta023", "ta024", "ta025", "ta026", "ta027", "ta028", "ta029", "ta030"};
+    vector<string> Instancias = {"br66", "ta021", /*"ta022", "ta023", "ta024", "ta025", "ta026", "ta027", "ta028", "ta029", "ta030"*/};
 
     cout << "Soluciones luego de una búsqueda local" << endl;
 
