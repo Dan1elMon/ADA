@@ -61,3 +61,31 @@ int main(){
     }
     cout<<endl;
 }
+
+
+
+int NEH(vector<int> &S){
+    int mk;
+    vector<int>orden;
+    PrioridadNEH(orden);
+    S={orden[0]};
+    for(int k=1M k<nT; k++){
+        vector<int>::iterator pos;
+        tie(mk,pos)=MejorPosicionInsercion(S,orden[k]);
+        S.insert(pos,orden[k]);
+
+    }
+    return mk;
+
+} 
+int main(){
+    vector<int>ss;
+    vector<string> Instancias = {"br66", "ta021", "ta022", "ta023", "ta024", "ta025", "ta026", "ta027", "ta028", "ta029", "ta030"};
+    cout<<"Solucions producidas por NEH"<<endl;
+    for(auto& instancia: Instancias){
+        cargar("flowshp/"+instancia);
+        cout<<instancia<<"\t"<<NEH(ss)<<": ";
+        for(auto &j:ss)cout <<j<<", ";
+        cout <<endl;
+    }
+}

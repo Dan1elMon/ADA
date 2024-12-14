@@ -55,7 +55,7 @@ int main() {
     vector<int> ss;
 
     // Carga los datos del archivo especificado
-    cargar("flowshop/br66");
+    cargar("../flowshop/br66");
 
     cout << "Ejemplo de prioridad NEH" << endl;
 

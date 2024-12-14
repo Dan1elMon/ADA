@@ -1,0 +1,69 @@
+//Determina el mejor punto de insercion
+//del nuevo trabajo nj en una solución parcial S
+//utilizando a aceleraecion de Tailard(1990)
+//retorna dos valores: makespan y psicion en S
+tuple<int,vector<int>::iterator>MejorPosicionInsercion(vector<int>&S, int nj){
+    //calcula tiempos de fin tempranos(EF; e de Tailard, 1990)
+    fill(&EF[0][0], &ef[0][mM],0);
+    for(int k=0; k<=S.size();k++){
+        int j = S[k-1];
+        EF[k][0]= EF[k-1][0]+P[j][0];
+        for(int i=0; i<mM;i++){
+            EF[k][i]=max(EF[k-1][i], EF[k][i-1]+P[j][i];
+        }
+    }
+    //calcula tiempos de fin tempranos relativos (e' de Tailard,1990)
+    //del nuevo trabajo nj en cada posicion de insercion de S
+    for(int k=0; k<=S.size();k++){
+        EF[k][0]+=P[nj][0];
+        for(int i=1; i<mM;i++){
+            EF[k][i]=max(EF[k][i], EF[k][i-1])+P[nj][i];
+        }
+    }
+
+
+    //calcla tiempos de inicio tardios (LS; q de Tailard, 1990)
+    fill(&LS[S.size()[0], &LS[S.size()]][mM],0);
+    for(int k= S.size()-1;k>=0;k--){
+        LS[k][i]=max(LS[k][i+1],LS[k+1][i])+P[j][i];
+
+    }
+
+
+    //Busca la posicion pos que resulta en min(Cmax_k)
+    //donde Cmax_k=max_i(e' + q) de Tailard (1990)
+    int bmk = numeric_limits<int>::nax(),mk,pos;
+    for(int k=0; k<=S.size();k++){
+        mk=0;//elige la mayor suma como makesan en mk
+        for(int i=0; i<mM;i++){
+            if(mk<EF[k][i]+LS[k][i]){
+                mk=EF[k][i]+LS[k][i];
+                //actualiza el menor makespan y su poscion
+
+            }
+        }
+        //actualiza el menor makespan y su posicion
+        if(mk<bmk){
+            bmk=mk;
+            pos=k;
+        }
+    }
+    return {bmk,S.begin()+pos};
+
+}
+
+int main(){
+    vector<int>ss;
+    cargar("flowshop/br66");
+    cout <<"Ejemplo de aceleracion de Tailard"<<endl;
+    ss={4,3,1,0};
+    cout <<makespan(ss)<<endl;
+    int mk;
+    vector <int>::iterator pj;
+    tie(mk,pj)=MejorPosicionInsercion(ss,2);
+    ss.insert(pj,2);
+    cout<<mk<<":";
+    for(auto&j : ss)cout <<j <<",";
+    cout << endl;
+
+}

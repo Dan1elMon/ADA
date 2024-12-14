@@ -1,0 +1,46 @@
+int BusquedaLocal(vector<int>&S, int pmk =0){
+    vector<int>orden(S);
+    shuffle (orden.begin(),orden.end(),Rand);
+    int k=0;//indice para orden
+    int c=0;//centa iteraciones sin mejora
+    int bmk = pmk;//ultima mejora
+    if(bmk==0){
+        bmk=makespan(S);
+
+    }
+    do{
+        int mk;
+        vector<int>::iterator pos;
+        S.erase(find(S.begin(),S.end(),orden[K]));
+        tie(mk,pos)=MejorPosicionInsercion(S,orden[k]);
+        S.insert(pos,orden[k]);
+        if(mk<bmk){
+            bmk=mk;
+            c=0;
+        }
+        k++;
+        if(k>=nT){
+            k=0;
+
+        }
+        c++;
+    }while(c<nT);
+    return bmk;
+}
+
+
+int main(){
+    vector<int>ss;
+    vector<string>Instancias={"br66","ta021","ta022","ta023","ta024","ta025","ta026","ta027","ta028","ta029","ta030"};
+    cout<<"Soluciones luego de una busqueda local"<<endl;
+    for(auto&instancia:Instancias){
+        cargar("flowshop/"+instancia);
+        int mk=NEH(ss);mk=Busquedaocal(ss,mk);
+        cout<<instancia<<"\t"<<mk<<": ";
+        for(auto&j: ss){
+            cout <<j<<", ";
+            cout<<endl;
+        }
+    }
+}
+
