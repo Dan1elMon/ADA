@@ -54,8 +54,10 @@ int makespan(vector<int>& S) {
 }
 
 tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj) {
-    // Calcula tiempos de fin tempranos (EF; e de Tailard, 1990)
-    fill(&EF[0][0], &EF[0][0] + 900 * 70, 0); // Inicializa la matriz EF
+    // Inicializa la matriz EF
+    fill(&EF[0][0], &EF[0][0] + 900 * 70, 0);
+
+    // Calcular tiempos de finalización tempranos
     for (int k = 1; k <= S.size(); k++) {
         int j = S[k - 1];
         EF[k][0] = EF[k - 1][0] + P[j][0];
@@ -64,8 +66,7 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
         }
     }
 
-    // Calcula tiempos de fin tempranos relativos (e' de Tailard, 1990)
-    // para el nuevo trabajo `nj` en cada posición de inserción en `S`
+    // Calcula los tiempos de finalización tempranos relativos para el nuevo trabajo `nj`
     for (int k = 0; k <= S.size(); k++) {
         EF[k][0] += P[nj][0];
         for (int i = 1; i < mM; i++) {
@@ -73,8 +74,8 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
         }
     }
 
-    // Calcula tiempos de inicio tardíos (LS; q de Tailard, 1990)
-    fill(&LS[S.size()][0], &LS[S.size()][0] + 70, 0); // Inicializa la última fila de LS
+    // Calcula los tiempos de inicio tardíos (LS)
+    fill(&LS[S.size()][0], &LS[S.size()][0] + 70, 0);
     for (int k = S.size() - 1; k >= 0; k--) {
         int j = S[k];
         LS[k][mM - 1] = LS[k + 1][mM - 1] + P[j][mM - 1];
@@ -83,15 +84,13 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
         }
     }
 
-    // Busca la posición `pos` que resulta en min(Cmax_k),
-    // donde Cmax_k = max_i(e' + q) de Tailard (1990)
+    // Busca la mejor posición de inserción para minimizar el makespan
     int bmk = numeric_limits<int>::max(), mk, pos;
     for (int k = 0; k <= S.size(); k++) {
-        mk = 0; // Calcula el makespan máximo
+        mk = 0;
         for (int i = 0; i < mM; i++) {
             mk = max(mk, EF[k][i] + LS[k][i]);
         }
-        // Actualiza el mejor makespan y su posición
         if (mk < bmk) {
             bmk = mk;
             pos = k;
@@ -101,45 +100,38 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
     return {bmk, S.begin() + pos};
 }
 
-// Función de búsqueda local
 int BusquedaLocal(vector<int>& S, int pmk = 0) {
     vector<int> orden(S);
-    shuffle(orden.begin(), orden.end(), Rand);  // Baraja el vector de trabajos aleatoriamente
-    int k = 0;  // Índice para el orden
+    shuffle(orden.begin(), orden.end(), Rand);  // Baraja aleatoriamente
+    int bmk = pmk == 0 ? makespan(S) : pmk;  // Calcula el makespan inicial si no se pasa `pmk`
+
     int c = 0;  // Contador de iteraciones sin mejora
-    int bmk = pmk;  // Última mejora
-    if (bmk == 0) {
-        bmk = makespan(S);  // Si no se pasa una mejora, calcula el makespan inicial
-    }
-    
+    int k = 0;  // Índice para el orden
+
     do {
         int mk;
         vector<int>::iterator pos;
         
-        // Elimina el trabajo en la posición k de la lista S
-        S.erase(find(S.begin(), S.end(), orden[k]));  
-        
-        // Encuentra la mejor posición de inserción para el trabajo orden[k]
-        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]);  
-        
-        // Inserta el trabajo en la mejor posición encontrada
-        S.insert(pos, orden[k]);
-        
+        S.erase(find(S.begin(), S.end(), orden[k]));  // Elimina el trabajo
+        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]);  // Encuentra la mejor posición
+        S.insert(pos, orden[k]);  // Inserta el trabajo en la mejor posición
+
         if (mk < bmk) {
-            bmk = mk;  // Actualiza el mejor makespan
-            c = 0;  // Reinicia el contador de iteraciones sin mejora
+            bmk = mk;
+            c = 0;  // Reinicia el contador de iteraciones
         }
         
-        k++;  // Incrementa el índice de trabajo
+        k++;
         if (k >= nT) {
-            k = 0;  // Si se llega al final, reinicia el índice
+            k = 0;
         }
-        
-        c++;  // Incrementa el contador de iteraciones
-    } while (c < nT);  // Termina si no hay mejora en nT iteraciones
+
+        c++;
+    } while (c < nT);  // Termina si no mejora en `nT` iteraciones
 
     return bmk;  // Devuelve el mejor makespan encontrado
 }
+
 
 
 // Genera una permutación de trabajos según la prioridad NEH
@@ -378,32 +370,45 @@ int IG_noLs(vector<int>&BS){
 
 typedef int(*tMetodo)(vector<int> &);
 
-void Experimento (string sMetodo, tMetodo pMetodo){
-    vector<int>SS;
+void Experimento (string sMetodo, tMetodo pMetodo) {
+    vector<int> SS;
     ofstream fout(sMetodo + ".txt");
-    fout << sMetodo <<endl;
+    fout << sMetodo << endl;
 
-    vector <string>Instancias ={
-        "ta051","ta052","ta053","ta054","ta055","ta056","ta057","ta058","ta059","ta060"};
-    for(auto &instancia :Instancias){
-        cargar("flowshop/"+ instancia);
+    vector<string> Instancias = {
+        "ta051", "ta052", "ta053", "ta054", "ta055", "ta056", "ta057", "ta058", "ta059", "ta060"
+    };
+
+    for (auto &instancia : Instancias) {
+        cargar("flowshop/" + instancia);
 
         fout << instancia;
-        for(int i=0; i; i--){
-            fout << ", "<<(*pMetodo)(SS);
+        for (int i = 0; i < SS.size(); i++) {  // Aquí corregí la condición de la iteración
+            fout << ", " << (*pMetodo)(SS);
         }
         fout << endl;
     }
     fout.close();
-    
 }
+
 //asd
 
 int main(){
-    Experimento ("ilsb ",ILS_B);
-    //Experimento ("ilsrw ",ILS_RW);
-    //Experimento ("ilssa ",ILS_SA);
-    //Experimento ("ig ",IG);
-    //Experimento ("igsin ",IGsin);
+
+    cout << "Iterated Local search better" << endl;
+    Experimento ("00_ilsb_prueba",ILS_B);
+
+    cout << "Iterated Local search randwom walk" << endl;
+    //Experimento ("00_ilsrw_prueba ",ILS_RW);
+
+    //cout << "Iterated Local search Simulated annealing" << endl;
+    //Experimento ("00_ilssa_prueba",ILS_SA);
+
+    //cout << "Iterated greedy con ls" << endl;
+    //xperimento ("00_ig_prueba",IG_conLS);
+
+
+    //cout << "Iterated greedy sin ls" << endl;
+    //Experimento ("00_igsin_prueba",IG_noLs);
 
 }
