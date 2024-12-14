@@ -38,7 +38,6 @@ void cargar(string nombre) {
     archivo.close();
 }
 
-
 // Calcula el makespan para un orden dado
 int makespan(vector<int>& S) {
     fill(&EF[0][0], &EF[0][0] + 900 * 70, 0);  // Inicializa toda la matriz EF
@@ -379,14 +378,14 @@ void Experimento (string sMetodo, tMetodo pMetodo) {
         "ta051", "ta052", "ta053", "ta054", "ta055", "ta056", "ta057", "ta058", "ta059", "ta060"
     };
 
-    for (auto &instancia : Instancias) {
+    for (const auto &instancia : Instancias) {
         cargar("flowshop/" + instancia);
 
         fout << instancia;
-        for (int i = 0; i < SS.size(); i++) {  // Aquí corregí la condición de la iteración
+        /*for (int i = 0; i < SS.size(); i++) {  // Aquí corregí la condición de la iteración*/
             fout << ", " << (*pMetodo)(SS);
-        }
-        fout << endl;
+        //}
+       /* fout << endl;*/
     }
     fout.close();
 }

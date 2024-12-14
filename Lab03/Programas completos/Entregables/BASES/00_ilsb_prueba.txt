@@ -1,11 +1,1 @@
 00_ilsb_prueba
-ta051
-ta052
-ta053
-ta054
-ta055
-ta056
-ta057
-ta058
-ta059
-ta060
