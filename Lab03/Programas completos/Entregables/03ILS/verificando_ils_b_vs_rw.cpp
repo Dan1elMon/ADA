@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -6,7 +7,6 @@
 #include <random>
 #include <tuple>
 #include <limits>
-#include <ctime>
 using namespace std;
 
 // Definición de las matrices globales
@@ -36,21 +36,6 @@ void cargar(string nombre) {
         }
     }
     archivo.close();
-}
-
-
-// Calcula el makespan para un orden dado
-int makespan(vector<int>& S) {
-    fill(&EF[0][0], &EF[0][0] + 900 * 70, 0);  // Inicializa toda la matriz EF
-    int k = 1;
-    for (auto j : S) {
-        EF[k][0] = EF[k - 1][0] + P[j][0];
-        for (int i = 1; i < mM; i++) {
-            EF[k][i] = max(EF[k - 1][i], EF[k][i - 1]) + P[j][i];
-        }
-        k++;
-    }
-    return EF[S.size()][mM - 1];
 }
 
 tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj) {
@@ -101,6 +86,51 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
     return {bmk, S.begin() + pos};
 }
 
+// Genera una permutación de trabajos según la prioridad NEH
+void PrioridadNEH(vector<int> &Orden) {
+    vector<int> TT(nT, 0);
+    for (int j = 0; j < nT; j++) {
+        for (int i = 0; i < mM; i++) {
+            TT[j] += P[j][i];
+        }
+    }
+    Orden.resize(nT);
+    iota(Orden.begin(), Orden.end(), 0); // Llena con {0, 1, ..., nT-1}
+    sort(Orden.begin(), Orden.end(), [&TT](const int &i, const int &j) {
+        return (TT[i] > TT[j] || (TT[i] == TT[j] && i < j));
+    });
+}
+
+// Función NEH principal
+int NEH(vector<int> &S) {
+    int mk;
+    vector<int> orden;
+    PrioridadNEH(orden);
+    S = {orden[0]};
+    for (int k = 1; k < nT; k++) {
+        vector<int>::iterator pos;
+        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]); // Necesitas implementar esta función
+        S.insert(pos, orden[k]);
+    }
+    return mk;
+}
+
+// Calcula el makespan para un orden dado
+int makespan(vector<int>& S) {
+    fill(&EF[0][0], &EF[0][0] + 900 * 70, 0);  // Inicializa toda la matriz EF
+    int k = 1;
+    for (auto j : S) {
+        EF[k][0] = EF[k - 1][0] + P[j][0];
+        for (int i = 1; i < mM; i++) {
+            EF[k][i] = max(EF[k - 1][i], EF[k][i - 1]) + P[j][i];
+        }
+        k++;
+    }
+    return EF[S.size()][mM - 1];
+}
+
+
+
 // Función de búsqueda local
 int BusquedaLocal(vector<int>& S, int pmk = 0) {
     vector<int> orden(S);
@@ -140,41 +170,7 @@ int BusquedaLocal(vector<int>& S, int pmk = 0) {
 
     return bmk;  // Devuelve el mejor makespan encontrado
 }
-
-
-// Genera una permutación de trabajos según la prioridad NEH
-void PrioridadNEH(vector<int> &Orden) {
-    vector<int> TT(nT, 0);
-    for (int j = 0; j < nT; j++) {
-        for (int i = 0; i < mM; i++) {
-            TT[j] += P[j][i];
-        }
-    }
-    Orden.resize(nT);
-    iota(Orden.begin(), Orden.end(), 0); // Llena con {0, 1, ..., nT-1}
-    sort(Orden.begin(), Orden.end(), [&TT](const int &i, const int &j) {
-        return (TT[i] > TT[j] || (TT[i] == TT[j] && i < j));
-    });
-}
-
-
-
-// Función NEH 
-int NEH(vector<int> &S) {
-    int mk;
-    vector<int> orden;
-    PrioridadNEH(orden);
-    S = {orden[0]};
-    for (int k = 1; k < nT; k++) {
-        vector<int>::iterator pos;
-        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]); // Necesitas implementar esta función
-        S.insert(pos, orden[k]);
-    }
-    return mk;
-}
-
-//asd
-// Criterio de aceptación de ILS (Iterated Local Search - Mejorado)
+// Criterio de aceptación de ILS (Iterated Local Search )
 int ILS_B(vector<int>& BS) {
     vector<int> S;
     int mk, bmk;
@@ -214,8 +210,9 @@ int ILS_B(vector<int>& BS) {
     // Retorna el mejor makespan encontrado
     return bmk;
 }
-//asd
-// Criterio de aceptación de ILS rANDON WALK
+
+
+// Criterio de aceptación de ILS (Iterated Local Search  RANDOIM WALK)
 int ILS_RW(vector<int>& BS) {
     vector<int> S;
     int mk, bmk;
@@ -256,154 +253,33 @@ int ILS_RW(vector<int>& BS) {
     return bmk;
 }
 
+int main() {
+    vector<int> SS;
 
-//asd
-int IG_conLS(vector<int>&BS){
-    vector<int>S,NS,R;
-    R.resize(4);
-    int mk,bmk,nmk;
-    int sum_p=0;
-    for(int j=0; j<nT;j++){
-        for(int i=0; i<mM;i++){
-            sum_p+=P[i][j];
-        }
-    }
-    double T=double (sum_p)/(nT*mM*25);
-    elapsed(true);
-    bmk = mk =NEH(S);
-    bmk = mk = BusquedaLocal(S);
-    BS=S;
+    // Carga los datos del archivo especificado
+    cargar("flowshop/ta023");
 
-    while(elapsed()<15*nT*mM){
+    cout << "nT" << "X"<<mM<<endl;
 
-        NS=S;
-        for(auto &j:R){
-            auto b1=NS.begin()+Rand()%NS.size();
-            j=*b1;
-            NS.erase(b1);
-        }
-        for(auto &j:R){
-            vector<int>::iterator pos;
-            tie(nmk,pos)=MejorPosicionInsercion(NS,j);
-            NS.insert(pos,j);
 
-        }
-        mk=BusquedaLocal(NS,nmk);
-    }
-    return bmk;
-}
+    cout << "ilsB   " <<ILS_B(SS)<<endl;
+    for(auto&j: SS)cout <<j<<", ";
+    cout<<endl;
+
+    cout << "ilrw   " <<ILS_RW(SS)<<endl;
+    for(auto&j: SS)cout <<j<<", ";
+    cout<<endl;
 
 
 
+    /*
+    cout << "ilsa" <<ILS_SA(SS)<<endl;
+    for(auto&j: SS)cout <<j<<", ";
+    cout<<endl;
 
-//asd
-int ILS_SA(vector<int>& BS){
-    vector<int>S, NS;
-    int mk, bmk, nmk;
+    cout << "ig" <<IG(SS)<<endl;
+    for(auto&j: SS)cout <<j<<", ";
+    cout<<endl;*/
 
-    int sum_p=0;
-
-    for(int j=0;j<nT; j++ ){
-        for(int i=0; i<mM;i++){
-            sum_p+=P[j][i];
-        }
-    }
-    double T=double (sum_p)/(nT*mM*25);  // Ajusté la temperatura
-    elapsed(true);
-    bmk=mk=NEH(S);
-    bmk=mk=BusquedaLocal(S);
-    BS=S;
-
-    while(elapsed()<15*nT*mM){
-        NS=S;
-        auto b1 =NS.begin()+Rand()%NS.size();
-        auto b2 =NS.begin()+Rand()%NS.size();
-        swap(*b1,*b2);
-
-        b1=NS.begin()+Rand()%NS.size();
-        b2=NS.begin()+Rand()%NS.size();
-        swap(*b1,*b2);
-
-        nmk=BusquedaLocal(NS);
-       
-        if(nmk <mk){
-            S=NS;mk = nmk;
-            if(mk<bmk){
-                BS=S;bmk=mk;
-            }
-        }
-        else if(double(Rand())/Rand.max()<=exp(-(double(nmk-mk )/T))){ // Corrección del cálculo de probabilidad
-            S=NS;mk=nmk;
-        }
-    }
-    return bmk;
-}
-
-
-//asd
-int IG_noLs(vector<int>&BS){
-    vector<int> S,NS, R;
-    R.resize(4);
-    int mk, bmk,nmk;
-    int sum_p=0;
-    
-    for(int j=0; j<nT;j++)for(int i=0;i<mM;i++){
-        sum_p=P[j][i];}
-
-    double T=double (sum_p)/(nT*mM*25);
-    elapsed(true);
-    bmk=mk=NEH(S);
-    //bmk = mk=BusquedaLocal(S);
-    BS=S;
-    while(elapsed()<15*nT*mM){
-        NS=S;
-        for(auto&j : R){
-            auto b1=NS.begin()+Rand()%NS.size();
-            j=*b1;
-            NS.erase(b1);
-
-        }
-        for(auto &j: R){
-            vector<int>::iterator pos;
-            tie(nmk,pos)=MejorPosicionInsercion(NS,j);
-            NS.insert(pos,j);
-
-        }
-        //nmk = BusquedaLocal(NS,nmk);
-    }
-   
-   return bmk;
-}
-
-
-typedef int(*tMetodo)(vector<int> &);
-
-void Experimento (string sMetodo, tMetodo pMetodo){
-    vector<int>SS;
-    ofstream fout(sMetodo + ".txt");
-    fout << sMetodo <<endl;
-
-    vector <string>Instancias ={
-        "ta051","ta052","ta053","ta054","ta055","ta056","ta057","ta058","ta059","ta060"};
-    for(auto &instancia :Instancias){
-        cargar("flowshop/"+ instancia);
-
-        fout << instancia;
-        for(int i=0; i; i--){
-            fout << ", "<<(*pMetodo)(SS);
-        }
-        fout << endl;
-    }
-    fout.close();
-    
-}
-//asd
-
-int main(){
-    Experimento ("ilsb ",ILS_B);
-    //Experimento ("ilsrw ",ILS_RW);
-    //Experimento ("ilssa ",ILS_SA);
-    //Experimento ("ig ",IG);
-    //Experimento ("igsin ",IGsin);
-
+    return 0;
 }

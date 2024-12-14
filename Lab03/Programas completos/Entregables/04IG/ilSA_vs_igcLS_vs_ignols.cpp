@@ -157,8 +157,6 @@ void PrioridadNEH(vector<int> &Orden) {
     });
 }
 
-
-
 // Función NEH 
 int NEH(vector<int> &S) {
     int mk;
@@ -172,90 +170,6 @@ int NEH(vector<int> &S) {
     }
     return mk;
 }
-
-//asd
-// Criterio de aceptación de ILS (Iterated Local Search - Mejorado)
-int ILS_B(vector<int>& BS) {
-    vector<int> S;
-    int mk, bmk;
-
-    // Inicializa el tiempo transcurrido a 0
-    elapsed(true);
-
-    // Ejecuta el algoritmo NEH para obtener una solución inicial
-    NEH(S);
-    
-    // Calcula el makespan de la solución inicial usando BusquedaLocal
-    bmk = mk = BusquedaLocal(S);
-    BS = S;  // Guarda la mejor solución hasta ahora
-
-    // Loop de búsqueda iterativa hasta que el tiempo transcurrido alcance el límite
-    while (elapsed() < 15 * nT * mM) {
-        // Realiza dos intercambios aleatorios en la solución S
-        auto b1 = S.begin() + Rand() % S.size();
-        auto b2 = S.begin() + Rand() % S.size();
-        swap(*b1, *b2);  // Primer intercambio
-
-        b1 = S.begin() + Rand() % S.size();
-        b2 = S.begin() + Rand() % S.size();
-        swap(*b1, *b2);  // Segundo intercambio
-
-        // Evalúa si la nueva solución es mejor
-        mk = BusquedaLocal(S);
-        if (bmk > mk) {
-            BS = S;  // Actualiza la mejor solución
-            bmk = mk;
-        } else {
-            S = BS;  // Restaura la mejor solución encontrada
-            mk = bmk;
-        }
-    }
-
-    // Retorna el mejor makespan encontrado
-    return bmk;
-}
-//asd
-// Criterio de aceptación de ILS rANDON WALK
-int ILS_RW(vector<int>& BS) {
-    vector<int> S;
-    int mk, bmk;
-
-    // Inicializa el tiempo transcurrido a 0
-    elapsed(true);
-
-    // Ejecuta el algoritmo NEH para obtener una solución inicial
-    NEH(S);
-    
-    // Calcula el makespan de la solución inicial usando BusquedaLocal
-    bmk = mk = BusquedaLocal(S);
-    BS = S;  // Guarda la mejor solución hasta ahora
-
-    // Loop de búsqueda iterativa hasta que el tiempo transcurrido alcance el límite
-    while (elapsed() < 15 * nT * mM) {
-        // Realiza dos intercambios aleatorios en la solución S
-        auto b1 = S.begin() + Rand() % S.size();
-        auto b2 = S.begin() + Rand() % S.size();
-        swap(*b1, *b2);  // Primer intercambio
-
-        b1 = S.begin() + Rand() % S.size();
-        b2 = S.begin() + Rand() % S.size();
-        swap(*b1, *b2);  // Segundo intercambio
-
-        // Evalúa si la nueva solución es mejor
-        mk = BusquedaLocal(S);
-        if (bmk > mk) {
-            BS = S;  // Actualiza la mejor solución
-            bmk = mk;
-        } /*else {
-            S = BS;  // Restaura la mejor solución encontrada
-            mk = bmk;
-        }*/
-    }
-
-    // Retorna el mejor makespan encontrado
-    return bmk;
-}
-
 
 //asd
 int IG_conLS(vector<int>&BS){
@@ -374,36 +288,27 @@ int IG_noLs(vector<int>&BS){
    
    return bmk;
 }
-
-
-typedef int(*tMetodo)(vector<int> &);
-
-void Experimento (string sMetodo, tMetodo pMetodo){
-    vector<int>SS;
-    ofstream fout(sMetodo + ".txt");
-    fout << sMetodo <<endl;
-
-    vector <string>Instancias ={
-        "ta051","ta052","ta053","ta054","ta055","ta056","ta057","ta058","ta059","ta060"};
-    for(auto &instancia :Instancias){
-        cargar("flowshop/"+ instancia);
-
-        fout << instancia;
-        for(int i=0; i; i--){
-            fout << ", "<<(*pMetodo)(SS);
-        }
-        fout << endl;
-    }
-    fout.close();
-    
-}
-//asd
-
 int main(){
-    Experimento ("ilsb ",ILS_B);
-    //Experimento ("ilsrw ",ILS_RW);
-    //Experimento ("ilssa ",ILS_SA);
-    //Experimento ("ig ",IG);
-    //Experimento ("igsin ",IGsin);
+    vector<int>SS;
+    cargar("flowshop/ta023");
+    cout<< nT <<" x "<< mM <<endl;
 
+    /*
+    cout <<"ilsb" <<ILS_B(SS)<<endl;
+    for(auto &j:SS)cout <<j<<", ";
+    cout <<endl;//*/
+    
+    cout <<"il_sa " << ILS_SA(SS)<<endl;
+    for(auto &j:SS)cout <<j<<", ";
+    cout <<endl;
+
+    cout<<"ig_con ls "<< IG_conLS(SS)<<endl;
+    for(auto &j:SS) cout <<j <<", ";
+    cout <<endl;
+
+    cout <<"ig n ls " << IG_noLs(SS) <<endl;
+    for(auto &j: SS)cout<<j <<", ";
+    cout << endl;
+    
+    //compeltadoo asdasd
 }
