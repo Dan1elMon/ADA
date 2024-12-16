@@ -388,7 +388,7 @@ void Experimento (string sMetodo, tMetodo pMetodo) {
         cargar("flowshop/" + instancia);
 
         fout << instancia;
-        /*for (int i = 0; i < SS.size(); i++) {  */
+        //for (int i = 0; i < SS.size(); i++) {  
             fout << ", " << (*pMetodo)(SS);
         //}
             fout << endl;
