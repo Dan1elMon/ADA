@@ -1,0 +1,205 @@
+intine int elapsed(bool reset=false){
+    static clock_t start=clock();
+    if(reset)start=clock();
+    return(1000.00*double(clock()-start))/double(CLOCKS _PER_SEC);
+}
+
+
+//criterio de aceptacion better
+int ILS_B(vector<int>&BS){
+    vector<int>S;
+    int mk,bmk;
+    elapsed=true;
+    NEH(S);
+    bmk =mk=BusquedaLocal(S);
+    BS=S;
+    while(elapsed()<15*nT*nM){
+        auto b1=S.begin()+Rand()%S.Size();
+        auto b2=S.begin()+Rand()%S.Size();
+        swap(*b1,*b2);
+        b1=S.begin()+Rand()%S.size();
+        b2=S.begin()+Rand()%S.size();
+        swap(*b1,*b2);
+        if(bmk>mk){
+            BS=S;bmk=mk;
+        }
+        else{
+            S=BS;
+            mk=bmk;
+        }
+    }
+    return bmk;
+}
+
+int ILS_SA(vector<int%BS){
+    vector<int>S;
+    int mk, bmk, nmk;
+
+    int sum_p=0;
+
+    for(int int j=0;j<nT; j++ ){
+        for(int i=0; i<mM;i++){
+            sum_p+=P[j][i];
+        }
+    }
+    double T=double (sum_p)/(nT*mM*25);
+    elapsed(true);
+    bmk=mk=NEH(S);
+    bmk=mk=BusquedaLocal(S);
+    BS=S;
+
+    while(elapsed()<15*nT*mM){
+        NS=S;
+        auto b1 =NS.begin()+Rand()%NS.size();
+        auto b2 =NS.begin()+Rand()%NS.size();
+        swap(*b1,*b2);
+
+        b1=NS.begin()+Rand()+Rand()%NS.size();
+        b2=NS.begin()+Rand()+Rand()%NS.size();
+
+        swap(*b1,*b2);
+        nmk=BusquedaLocal(NS);
+        
+        if(nmk <mk){
+            S=NS;mk = nmk;
+            if(mk<bmk){
+                BS=S;bmk=mk;
+            }
+        }
+        else if(double (Rand())/Rand.max()<=exp(-(double(nmk-mk )/T))){
+            S=NS;mk=nmk;
+        }
+        }
+    }
+    return bmk;
+}
+
+
+
+//iterated greedy con busqueda local
+
+int IG(vector<int>&BS){
+    vector<int>S,NS,R;
+    R.resize(4);
+    int mk,bmk,nmk;
+    int sum_p=0;
+    for(int j=0; j<nT;j++){
+        for(int i=0; i<mM;i++){
+            sum_p+=P[i][j];
+        }
+    }
+    double T=double (sum_p)/(nT*mM*25);
+    elapsed(true);
+    bmk = mk =NEH(S);
+    bmk = mk = BusquedaLocal(S);
+    BS=S;
+
+    while(elapsed()<15*nT*mM){
+        NS=S;
+        for(auto &j:R){
+            auto b1=NS.begin()+Rand()%NS.size();
+            j=*b1;
+            NS.erase(b1);
+        }
+        for(auto &j:R){
+            vector<int>::iterator pos;
+            tie(nmk,pos)=MejorInsercion(NS,j);
+            NS.insert(pos,j);
+
+        }
+        mk=BusquedaLocal(NS,nmk);
+    }
+}
+
+
+//ig sin busqueda local
+
+int IGnoLs(vector<int>&BS){
+    vector<int> S,NS, R, R.resize(4);
+    int mk; bmk,mk;
+    int sum_p=0;
+    for(int j=0; j<nT;j++)for(int i=0;i<mM;i++){
+        sum_p=P[j][i];}
+
+    double T=double (sum_p)/(nT*mM*25);
+    elapsed(true);
+    bmk=mk=NEH(S);
+    //bmk = mk=BusquedaLocal(S);
+    BS=S;
+    while(elapsed()<15*nT*mM){
+        NS=S;
+        for(auto&j : R){
+            auto b1=NS.begin()+Rand()%NS.size();
+            j=*b1;
+            NS.erase(b1);
+
+        }
+        for(auto &j: R){
+            vector<int>::iterator pos;
+            tie(nmk,pos)=MejorPosicionInsercion(NS,j);
+            NS.insert(pos,j);
+
+        }
+        //nmk = BusquedaLocal(NS,nmk);
+    }
+}
+
+
+//verifique el funcionamiento de ILS_SA, de IG y de IGnoLS 
+
+int main(){
+    vector<int>SS;
+    cargar("flowshop/ta023");
+    cout<<nT<<"x"<<mM<<endl;
+
+    /*
+    cout <<"ilsb" <<ILS_B(SS)<<endl;
+    for(auto &j:SS)cout <<j<<", ";
+    cout <<endl;//*/
+    
+    cout <<"ilsa" <<ILS_SA(SS)<<endl;
+    for(auto &j:SS)cout <<j<<", ";
+    cout <<endl;
+
+    cout<<"ig"<<IG(SS)<<endl;
+    for(auto &j:SS) cout <<j <<", ";
+    cout <<endl;
+
+    cout <<"ign" <<IGnoLS(SS) <<endl;
+    for(auto &j: SS)cout<<j <<", ";
+    cout << endl;//*/
+}
+
+
+Implemente la funcion experimento en c++
+
+itypedef int(*tMetodo)(vector<int> &);
+
+void Experimento (string sMetodo, tMetodo pMetodo){
+    vector<int>SS;
+    ofstream fout(sMetodo + ".txt");
+    fout << sMetodo <<endl;
+
+    vector <string>Instancias ={
+        "ta051","ta052","ta053","ta054","ta055","ta056","ta057","ta058","ta059","ta060"};
+    for(auto &instancia :Instancias){
+        cargar("flowshop/"+ instancia);
+
+        fout << instancia;
+        for(int i=0; i; i--){
+            fout << ", "<<(*pMetodo)(SS);
+        }
+        fout << endl;
+    }
+    fout.close();
+    
+}
+
+int main(){
+    Experimento ("ilsb",ILS_B);
+    //Experimento ("ilsrw",ILS_RW);
+    //Experimento ("ilssa",ILS_SA);
+    //Experimento ("ig",IG);
+    //Experimento ("igsin",IGsin);
+
+}
