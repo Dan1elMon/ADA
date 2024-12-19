@@ -29,3 +29,24 @@ Salida: Mejor solución encontrada (Mejor_solución)
 24: until CriterioDeTerminación()           // Basado en iteraciones, tiempo o convergencia
 
 25: return Mejor_solución
+
+
+function ig+ls()
+    s=NEH
+    s =localSearch(s) // opcionak
+    sb = s
+    while (elapsed time <time limit do)
+        s' = s
+        s'p = destruction (s',d)
+        s' = construction (s'p)
+        s' = localsearch (s') // opcional
+
+        if(cmax(s)>cmax (s')) then
+            s=s'
+            if( cmax (sb)>c max(s) )then
+            sb = s
+
+        else if random <= c^(-(cmax(s')-cmax(s))/t) then
+            s=s'
+    return sb
+
