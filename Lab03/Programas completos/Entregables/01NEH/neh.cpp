@@ -10,7 +10,6 @@ using namespace std;
 // Variables globales
 int nT, mM, P[900][70];
 int EF[900][70], LS[900][70];
-mt19937 Rand(time(0));
 
 // Función para cargar datos desde un archivo
 void cargar(string nombre) {
@@ -20,9 +19,10 @@ void cargar(string nombre) {
         exit(1);
     }
     archivo >> nT >> mM;
+    int basura;
     for (int j = 0; j < nT; j++) {
         for (int i = 0; i < mM; i++) {
-            archivo >> P[j][i];
+            archivo >>basura >> P[j][i];
         }
     }
     archivo.close();
@@ -43,7 +43,7 @@ int makespan(vector<int> &S) {
 }
 tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj) {
     // Calcula tiempos de fin tempranos (EF; e de Tailard, 1990)
-    fill(&EF[0][0], &EF[0][0] + 900 * 70, 0); // Inicializa la matriz EF
+    fill(&EF[0][0], &EF[0][mM] , 0); // Inicializa la matriz EF
     for (int k = 1; k <= S.size(); k++) {
         int j = S[k - 1];
         EF[k][0] = EF[k - 1][0] + P[j][0];
@@ -77,7 +77,7 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
     for (int k = 0; k <= S.size(); k++) {
         mk = 0; // Calcula el makespan máximo
         for (int i = 0; i < mM; i++) {
-            mk = max(mk, EF[k][i] + LS[k][i]);
+            mk = EF[k][i] + LS[k][i];
         }
         // Actualiza el mejor makespan y su posición
         if (mk < bmk) {
@@ -130,3 +130,57 @@ int main() {
     }
     return 0;
 }
+
+/*
+
+tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj) {
+    // Calcula tiempos de fin tempranos (EF; e de Tailard, 1990)
+    fill(&EF[0][0], &EF[0][0], 0); // Inicializa la matriz EF
+    for (int k = 1; k <= S.size(); k++) {
+        int j = S[k - 1];
+        EF[k][0] = EF[k - 1][0] + P[j][0];
+        for (int i = 1; i < mM; i++) {
+            EF[k][i] = max(EF[k - 1][i], EF[k][i - 1]) + P[j][i];
+        }
+    }
+
+    // Calcula tiempos de fin tempranos relativos (e' de Tailard, 1990)
+    // para el nuevo trabajo `nj` en cada posición de inserción en `S`
+    for (int k = 0; k <= S.size(); k++) {
+        EF[k][0] += P[nj][0];
+        for (int i = 1; i < mM; i++) {
+            EF[k][i] = max(EF[k][i], EF[k][i - 1]) + P[nj][i];
+        }
+    }
+
+    // Calcula tiempos de inicio tardíos (LS; q de Tailard, 1990)
+    fill(&LS[S.size()][0], &LS[S.size()][mM], 0); // Inicializa la última fila de LS
+    for (int k = S.size() - 1; k >= 0; k--) {
+        int j = S[k];
+        LS[k][mM - 1] = LS[k + 1][mM - 1] + P[j][mM - 1];
+        for (int i = mM - 2; i >= 0; i--) {
+            LS[k][i] = max(LS[k][i + 1], LS[k + 1][i]) + P[j][i];
+        }
+    }
+
+    // Busca la posición `pos` que resulta en min(Cmax_k),
+    // donde Cmax_k = max_i(e' + q) de Tailard (1990)
+    int bmk = numeric_limits<int>::max(), mk, pos;
+    for (int k = 0; k <= S.size(); k++) {
+        mk = 0; // Calcula el makespan máximo
+        for (int i = 0; i < mM; i++) {
+            if(mk<EF[k][i]+LS[k][i]){
+                mk = max(mk, EF[k][i] + LS[k][i]);
+            }
+        }
+        // Actualiza el mejor makespan y su posición
+        if (mk < bmk) {
+            bmk = mk;
+            pos = k;
+        }
+    }
+
+    return {bmk, S.begin() + pos};
+}
+
+*/

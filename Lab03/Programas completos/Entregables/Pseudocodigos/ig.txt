@@ -1,0 +1,31 @@
+Algoritmo Iterativo Goloso (IG)
+Entrada: instancia del problema, parámetros (p.ej., criterios de terminación, porcentaje de destrucción, criterio de aceptación)
+Salida: Mejor solución encontrada (Mejor_solución)
+
+1: // Construcción de la solución inicial
+2: S_inicial ← ConstruirSoluciónInicial()  // Usa una heurística como NEH
+3: S_actual ← BúsquedaLocal(S_inicial)    // Optimiza la solución inicial
+4: Mejor_solución ← S_actual              // Guarda la mejor solución encontrada
+
+5: repeat
+6:     // Destrucción parcial de la solución
+7:     S_destruida ← Destruir(S_actual, porcentaje_destrucción) // Elimina un subconjunto de tareas
+8:     
+9:     // Reconstrucción de la solución
+10:    S_reconstruida ← Reconstruir(S_destruida) // Reasigna tareas con estrategias golosas
+11:    
+12:    // Aplicar búsqueda local
+13:    S_nueva ← BúsquedaLocal(S_reconstruida) // Optimiza la solución reconstruida
+14:    
+15:    // Criterio de aceptación
+16:    if Aceptar(S_actual, S_nueva) then    // Según "Simulated Annealing" u otro criterio
+17:        S_actual ← S_nueva
+18:    end if
+19:    
+20:    // Actualizar la mejor solución
+21:    if Evaluar(S_nueva) > Evaluar(Mejor_solución) then
+22:        Mejor_solución ← S_nueva
+23:    end if
+24: until CriterioDeTerminación()           // Basado en iteraciones, tiempo o convergencia
+
+25: return Mejor_solución

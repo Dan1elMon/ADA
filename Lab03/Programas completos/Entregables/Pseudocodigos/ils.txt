@@ -1,0 +1,28 @@
+Algoritmo ILS
+Entrada: instancia del problema, parámetros (p.ej., criterios de terminación, tipo de perturbación, criterio de aceptación)
+Salida: Mejor solución encontrada (M[t])
+
+1: // Construcción de la solución inicial
+2: S_inicial ← ConstruirSoluciónInicial()  // Utiliza una heurística como NEH
+3: S_actual ← BúsquedaLocal(S_inicial)    // Optimiza la solución inicial
+4: Mejor_solución ← S_actual              // Almacena la mejor solución encontrada
+
+5: repeat
+6:     // Realizar perturbación
+7:     S_perturbada ← Perturbar(S_actual)    // Modifica S_actual para escapar de óptimos locales
+8:     
+9:     // Optimización local
+10:    S_nueva ← BúsquedaLocal(S_perturbada) // Optimiza la solución perturbada
+11:    
+12:    // Criterio de aceptación
+13:    if Aceptar(S_actual, S_nueva) then    // Según Better, Random Walk o Simulated Annealing
+14:        S_actual ← S_nueva
+15:    end if
+16:    
+17:    // Actualizar la mejor solución
+18:    if Evaluar(S_nueva) > Evaluar(Mejor_solución) then
+19:        Mejor_solución ← S_nueva
+20:    end if
+21: until CriterioDeTerminación()           // Termina según un número máximo de iteraciones o tiempo
+
+22: return Mejor_solución

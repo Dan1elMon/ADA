@@ -30,9 +30,10 @@ void cargar(string nombre) {
         exit(1);
     }
     archivo >> nT >> mM;
+    int basura;
     for (int j = 0; j < nT; j++) {
         for (int i = 0; i < mM; i++) {
-            archivo >> P[j][i];
+            archivo >>basura >> P[j][i];
         }
     }
     archivo.close();
@@ -40,7 +41,7 @@ void cargar(string nombre) {
 
 tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj) {
     // Calcula tiempos de fin tempranos (EF; e de Tailard, 1990)
-    fill(&EF[0][0], &EF[0][0] + 900 * 70, 0); // Inicializa la matriz EF
+    fill(&EF[0][0], &EF[0][mM], 0); // Inicializa la matriz EF
     for (int k = 1; k <= S.size(); k++) {
         int j = S[k - 1];
         EF[k][0] = EF[k - 1][0] + P[j][0];
@@ -59,7 +60,7 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
     }
 
     // Calcula tiempos de inicio tardíos (LS; q de Tailard, 1990)
-    fill(&LS[S.size()][0], &LS[S.size()][0] + 70, 0); // Inicializa la última fila de LS
+    fill(&LS[S.size()][0], &LS[S.size()][mM], 0); // Inicializa la última fila de LS
     for (int k = S.size() - 1; k >= 0; k--) {
         int j = S[k];
         LS[k][mM - 1] = LS[k + 1][mM - 1] + P[j][mM - 1];
@@ -74,7 +75,9 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
     for (int k = 0; k <= S.size(); k++) {
         mk = 0; // Calcula el makespan máximo
         for (int i = 0; i < mM; i++) {
-            mk = max(mk, EF[k][i] + LS[k][i]);
+            if(mk<EF[k][i]+LS[k][i]){
+                mk =  EF[k][i] + LS[k][i];
+            }
         }
         // Actualiza el mejor makespan y su posición
         if (mk < bmk) {
@@ -88,11 +91,14 @@ tuple<int, vector<int>::iterator> MejorPosicionInsercion(vector<int> &S, int nj)
 
 // Genera una permutación de trabajos según la prioridad NEH
 void PrioridadNEH(vector<int> &Orden) {
-    vector<int> TT(nT, 0);
+    vector<int>TT;
+    TT.resize(nT);
     for (int j = 0; j < nT; j++) {
+        int t= 0;
         for (int i = 0; i < mM; i++) {
-            TT[j] += P[j][i];
+            t=t+P[j][i];
         }
+        TT[j]=t;
     }
     Orden.resize(nT);
     iota(Orden.begin(), Orden.end(), 0); // Llena con {0, 1, ..., nT-1}
@@ -106,10 +112,11 @@ int NEH(vector<int> &S) {
     int mk;
     vector<int> orden;
     PrioridadNEH(orden);
+    
     S = {orden[0]};
     for (int k = 1; k < nT; k++) {
         vector<int>::iterator pos;
-        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]); // Necesitas implementar esta función
+        tie(mk, pos) = MejorPosicionInsercion(S, orden[k]);
         S.insert(pos, orden[k]);
     }
     return mk;
@@ -117,7 +124,7 @@ int NEH(vector<int> &S) {
 
 // Calcula el makespan para un orden dado
 int makespan(vector<int>& S) {
-    fill(&EF[0][0], &EF[0][0] + 900 * 70, 0);  // Inicializa toda la matriz EF
+    fill(&EF[0][0], &EF[0][mM], 0);  // Inicializa toda la matriz EF
     int k = 1;
     for (auto j : S) {
         EF[k][0] = EF[k - 1][0] + P[j][0];
@@ -204,7 +211,51 @@ int IG_noLs(vector<int>&BS){
    return bmk;
 }
 
+typedef int(*tMetodo)(vector<int> &);
 
+void Experimento (string sMetodo, tMetodo pMetodo) {
+    vector<int> SS;
+    ofstream fout(sMetodo + ".txt");
+    fout << sMetodo << endl;
+
+    vector<string> Instancias = {
+        "ta051", "ta052",/* "ta053", "ta054", "ta055", "ta056", "ta057", "ta058", "ta059", "ta060"*/
+    };
+
+    for (const auto &instancia : Instancias) {
+        cargar("flowshop/" + instancia);
+
+        fout << instancia;
+        for (int i = 0; i < 2; i++) {
+            fout << ", " << (*pMetodo)(SS);
+        }
+            fout << endl;
+    }
+    fout.close();
+}
+
+//asd
+
+int main(){
+
+    cout << "Iterated Local search better" << endl;
+    Experimento ("00_ilsb_prueba",ILS_B);
+
+    cout << "Iterated Local search randwom walk" << endl;
+    Experimento ("01_ilsrw_prueba ",ILS_RW);
+
+    cout << "Iterated Local search Simulated annealing" << endl;
+    Experimento ("02_ilssa_prueba",ILS_SA);
+
+    cout << "Iterated greedy con ls" << endl;
+    Experimento ("03_ig_prueba",IG_conLS);
+
+
+    cout << "Iterated greedy sin ls" << endl;
+    Experimento ("04_igsin_prueba",IG_noLs);
+
+}
+/*
 int main() {
     vector<int> ss;
     vector<string> Instancias = {"br66", "ta021", "ta022", "ta023", "ta024", "ta025", "ta026", "ta027", "ta028", "ta029", "ta030"};
@@ -222,5 +273,25 @@ int main() {
         }
         cout << endl;
     }
+*/
+/*
+int main() {
+    vector<int> ss;
+    vector<string> Instancias = {"br66", "ta021", "ta022", "ta023", "ta024", "ta025", "ta026", "ta027", "ta028", "ta029", "ta030"};
+    cout << "Soluciones producidas por NEH" << endl;
+    for (auto &instancia : Instancias) {
+        cargar("flowshop/" + instancia);
 
+        int mk = NEH(ss); mk= BusquedaLocal(ss,mk);
+        if(mk != makespan(ss)){
+            cout <<"ERROR!!\n";
+        }
+        cout << instancia << "\t" << mk << ": ";
+
+        for (auto &j : ss) cout << j << ", ";
+        cout << endl;
+    }
+    return 0;
 }
+
+*/

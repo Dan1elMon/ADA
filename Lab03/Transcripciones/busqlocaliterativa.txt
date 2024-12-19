@@ -69,7 +69,7 @@ int ILS_SA(vector<int%BS){
         else if(double (Rand())/Rand.max()<=exp(-(double(nmk-mk )/T))){
             S=NS;mk=nmk;
         }
-        }
+        
     }
     return bmk;
 }
