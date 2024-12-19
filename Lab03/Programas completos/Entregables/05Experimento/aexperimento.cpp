@@ -207,8 +207,7 @@ int IG_noLs(vector<int>&BS){
         }
         //nmk = BusquedaLocal(NS,nmk);
     }
-   
-   return bmk;
+    return bmk;
 }
 
 // Criterio de aceptación de ILS (Iterated Local Search )
@@ -305,7 +304,7 @@ int ILS_SA(vector<int>& BS){
             sum_p+=P[j][i];
         }
     }
-    double T=double (sum_p)/(nT*mM*25);  // Ajusté la temperatura
+    double T=double (sum_p)/(nT*mM*25);
     elapsed(true);
     bmk=mk=NEH(S);
     bmk=mk=BusquedaLocal(S);
@@ -345,7 +344,7 @@ int IG_conLS(vector<int>&BS){
     int sum_p=0;
     for(int j=0; j<nT;j++){
         for(int i=0; i<mM;i++){
-            sum_p+=P[i][j];
+            sum_p+=P[j][i];
         }
     }
     double T=double (sum_p)/(nT*mM*25);
@@ -367,7 +366,7 @@ int IG_conLS(vector<int>&BS){
             NS.insert(pos,j);
 
         }
-        mk=BusquedaLocal(NS,nmk);
+        nmk=BusquedaLocal(NS,nmk);
     }
     return bmk;
 }
@@ -403,11 +402,11 @@ void Experimento (string sMetodo, tMetodo pMetodo) {
 
 int main(){
 
-    cout << "Iterated Local search better" << endl;
+   /* cout << "Iterated Local search better" << endl;
     Experimento ("00_ilsb_prueba",ILS_B);
 
     cout << "Iterated Local search randwom walk" << endl;
-    Experimento ("01_ilsrw_prueba ",ILS_RW);
+    Experimento ("01_ilsrw_prueba ",ILS_RW);*/
 
     cout << "Iterated Local search Simulated annealing" << endl;
     Experimento ("02_ilssa_prueba",ILS_SA);
