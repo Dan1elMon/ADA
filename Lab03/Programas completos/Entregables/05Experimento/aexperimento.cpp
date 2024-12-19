@@ -206,6 +206,15 @@ int IG_noLs(vector<int>&BS){
 
         }
         //nmk = BusquedaLocal(NS,nmk);
+        if(nmk <mk){
+            S=NS;mk = nmk;
+            if(mk<bmk){
+                BS=S;bmk=mk;
+            }
+        }
+        else if(double(Rand())/Rand.max()<=exp(-(double(nmk-mk )/T))){ // Corrección del cálculo de probabilidad
+            S=NS;mk=nmk;
+        }
     }
     return bmk;
 }
@@ -367,6 +376,15 @@ int IG_conLS(vector<int>&BS){
 
         }
         nmk=BusquedaLocal(NS,nmk);
+        if(nmk <mk){
+            S=NS;mk = nmk;
+            if(mk<bmk){
+                BS=S;bmk=mk;
+            }
+        }
+        else if(double(Rand())/Rand.max()<=exp(-(double(nmk-mk )/T))){ 
+            S=NS;mk=nmk;
+        }
     }
     return bmk;
 }
@@ -402,20 +420,20 @@ void Experimento (string sMetodo, tMetodo pMetodo) {
 
 int main(){
 
-   /* cout << "Iterated Local search better" << endl;
+    cout << "Iterated Local search better" << endl;
     Experimento ("00_ilsb_prueba",ILS_B);
 
-    cout << "Iterated Local search randwom walk" << endl;
-    Experimento ("01_ilsrw_prueba ",ILS_RW);*/
+    //cout << "Iterated Local search randwom walk" << endl;
+    //Experimento ("01_ilsrw_prueba ",ILS_RW);
 
-    cout << "Iterated Local search Simulated annealing" << endl;
-    Experimento ("02_ilssa_prueba",ILS_SA);
+    //cout << "Iterated Local search Simulated annealing" << endl;
+    //Experimento ("02_ilssa_prueba",ILS_SA);
 
-    cout << "Iterated greedy con ls" << endl;
-    Experimento ("03_ig_prueba",IG_conLS);
+    //cout << "Iterated greedy con ls" << endl;
+    //Experimento ("03_ig_prueba",IG_conLS);
 
 
-    cout << "Iterated greedy sin ls" << endl;
-    Experimento ("04_igsin_prueba",IG_noLs);
+    //cout << "Iterated greedy sin ls" << endl;
+    //Experimento ("04_igsin_prueba",IG_noLs);
 
 }
